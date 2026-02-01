@@ -8,4 +8,4 @@ cmds = ["npm ci"]
 cmds = ["npx turbo run build --filter=web"]
 
 [start]
-cmd = "npx serve -s apps/web/dist -l $PORT"
+cmd = "npx serve -s apps/web/dist -p 3000"
