@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
     Users,
@@ -39,11 +39,7 @@ const SidebarLink: React.FC<SidebarItemProps> = ({ icon: Icon, label, to }) => (
     </NavLink>
 );
 
-interface AdminLayoutProps {
-    children: React.ReactNode;
-}
-
-export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+export const AdminLayout: React.FC = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const navigate = useNavigate();
     const { profile, logout } = useAuth();
@@ -160,7 +156,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
                 {/* Content Area */}
                 <main className="flex-1 overflow-y-auto p-8 lg:p-10">
-                    {children}
+                    <Outlet />
                 </main>
             </div>
         </div>

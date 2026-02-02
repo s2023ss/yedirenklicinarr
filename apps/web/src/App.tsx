@@ -21,36 +21,34 @@ function App() {
             </ProtectedRoute>
           } />
 
-          {/* Admin & Teacher Routes */}
-          <Route path="/*" element={
+          {/* Admin & Teacher Routes with Layout */}
+          <Route path="/" element={
             <ProtectedRoute>
-              <AdminLayout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/academic" element={<AcademicStructure />} />
-                  <Route path="/academic/course/:id" element={<CourseDetail />} />
-                  <Route path="/questions" element={<QuestionBank />} />
-                  <Route path="/questions/new" element={<QuestionCreate />} />
-                  <Route path="/questions/edit/:id" element={<QuestionEdit />} />
-                  <Route path="/questions/bulk" element={<QuestionBulkUpload />} />
-                  <Route path="/exams" element={<Exams />} />
-                  <Route path="/exams/new" element={<ExamCreate />} />
-
-                  {/* Admin Only Routes */}
-                  <Route path="/users" element={
-                    <RoleBasedRoute allowedRoles={['admin']}>
-                      <Users />
-                    </RoleBasedRoute>
-                  } />
-
-                  {/* Student Routes */}
-                  <Route path="/student/exams" element={<StudentExams />} />
-                  <Route path="/achievements" element={<div className="p-6">Rozetler yakında burada.</div>} />
-                  <Route path="/settings" element={<div className="p-6">Ayarlar yakında burada.</div>} />
-                </Routes>
-              </AdminLayout>
+              <AdminLayout />
             </ProtectedRoute>
-          } />
+          }>
+            <Route index element={<Dashboard />} />
+            <Route path="academic" element={<AcademicStructure />} />
+            <Route path="academic/course/:id" element={<CourseDetail />} />
+            <Route path="questions" element={<QuestionBank />} />
+            <Route path="questions/new" element={<QuestionCreate />} />
+            <Route path="questions/edit/:id" element={<QuestionEdit />} />
+            <Route path="questions/bulk" element={<QuestionBulkUpload />} />
+            <Route path="exams" element={<Exams />} />
+            <Route path="exams/new" element={<ExamCreate />} />
+
+            {/* Admin Only Routes */}
+            <Route path="users" element={
+              <RoleBasedRoute allowedRoles={['admin']}>
+                <Users />
+              </RoleBasedRoute>
+            } />
+
+            {/* Student Routes */}
+            <Route path="student/exams" element={<StudentExams />} />
+            <Route path="achievements" element={<div className="p-6">Rozetler yakında burada.</div>} />
+            <Route path="settings" element={<div className="p-6">Ayarlar yakında burada.</div>} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
@@ -58,5 +56,6 @@ function App() {
 }
 
 export default App;
+
 
 
