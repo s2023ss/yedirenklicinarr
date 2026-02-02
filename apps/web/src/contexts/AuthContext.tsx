@@ -33,18 +33,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [profile, setProfile] = useState<Profile | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
+    const profileRef = React.useRef<Profile | null>(null);
+
+    // Sync ref with state
+    useEffect(() => {
+        profileRef.current = profile;
+    }, [profile]);
 
     // Fetch user profile from database
-    const fetchProfile = async (userId: string) => {
+    const fetchProfile = async (userId: string, isInitial: boolean = false) => {
+        // If we already have this user's profile, don't re-fetch unless it's initial load
+        if (profile && profile.id === userId && !isInitial) {
+            console.log('Profile already loaded for user:', userId);
+            return;
+        }
+
         try {
             console.log('=== FETCH PROFILE START ===');
-            console.log('Fetching profile for user:', userId);
-            console.log('Supabase client:', supabase);
-            console.log('About to call supabase.from...');
-
-            // Create a timeout promise
+            // Use a relative timeout only if we want to catch persistent hangs
+            // But let's make it longer or remove it if it causes issues on slow networks
+            const timeoutMs = 15000;
             const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error('Query timeout after 10 seconds')), 10000);
+                setTimeout(() => reject(new Error(`Query timeout after ${timeoutMs / 1000} seconds`)), timeoutMs);
             });
 
             const query = supabase
@@ -53,77 +63,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .eq('id', userId)
                 .single();
 
-            console.log('Query created, executing...');
-
             // Race between query and timeout
             const result: any = await Promise.race([
                 query,
                 timeoutPromise
             ]);
 
-            console.log('Query executed!');
-            console.log('Supabase response:', result);
-
             const { data, error } = result;
 
             if (error) {
-                console.error('Profile fetch error:', {
-                    message: error.message,
-                    code: error.code,
-                    details: error.details,
-                    hint: error.hint,
-                    fullError: error
-                });
+                console.error('Profile fetch error:', error.message);
                 throw error;
             }
-            console.log('Profile fetched successfully:', data);
-            setProfile(data);
-            console.log('=== FETCH PROFILE END (SUCCESS) ===');
-        } catch (error: any) {
-            console.error('=== FETCH PROFILE END (ERROR) ===');
-            console.error('Error fetching profile (catch block):', {
-                message: error?.message,
-                name: error?.name,
-                stack: error?.stack,
-                fullError: error
-            });
 
-            // Try a simpler approach - direct fetch as fallback
-            console.log('Trying direct fetch approach as fallback...');
-            try {
-                const response = await fetch(
-                    `https://supabase.yedirenklicinar.digitalalem.com/rest/v1/profiles?id=eq.${userId}&select=*`,
-                    {
-                        headers: {
-                            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3Njk4ODgxNDQsImV4cCI6MTg5MzQ1NjAwMCwicm9sZSI6ImFub24iLCJpc3MiOiJzdXBhYmFzZSJ9.RDyrrTH3Av-5AaG22l6zP02i32xLtpnqOft1NTddB4o',
-                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3Njk4ODgxNDQsImV4cCI6MTg5MzQ1NjAwMCwicm9sZSI6ImFub24iLCJpc3MiOiJzdXBhYmFzZSJ9.RDyrrTH3Av-5AaG22l6zP02i32xLtpnqOft1NTddB4o'
-                        }
-                    }
-                );
-                const data = await response.json();
-                console.log('Direct fetch result:', data);
-                if (data && data.length > 0) {
-                    setProfile(data[0]);
-                    console.log('✅ Profile set via direct fetch!');
-                    return; // Success via fallback
-                }
-            } catch (fetchError) {
-                console.error('Direct fetch also failed:', fetchError);
+            if (data) {
+                setProfile(data);
+                console.log('Profile loaded:', data.full_name);
             }
-
-            setProfile(null);
+        } catch (error: any) {
+            console.error('Error fetching profile:', error?.message);
+            // Don't clear profile if it's just a timeout and we already had it
+            if (error?.message?.includes('timeout') && profile && profile.id === userId) {
+                console.log('Using cached profile due to timeout');
+            } else {
+                setProfile(null);
+            }
         }
     };
 
     // Initialize auth state
     useEffect(() => {
+        let isMounted = true;
+
         // Get initial session
         supabase.auth.getSession().then(async ({ data: { session } }) => {
+            if (!isMounted) return;
+
             setSession(session);
             setUser(session?.user ?? null);
 
             if (session?.user) {
-                await fetchProfile(session.user.id);
+                await fetchProfile(session.user.id, true);
             }
 
             setLoading(false);
@@ -132,33 +112,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
+                if (!isMounted) return;
+
                 console.log('Auth state changed:', event);
 
-                // Set loading for significant changes if we want to ensure no flicker
-                if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-                    setLoading(true);
-                }
+                // Update auth state
+                const newUser = session?.user ?? null;
 
                 setSession(session);
-                setUser(session?.user ?? null);
+                setUser(newUser);
 
-                if (session?.user) {
-                    await fetchProfile(session.user.id);
-                } else {
+                // Handle events
+                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+                    if (newUser) {
+                        // Only set loading if we don't have a profile OR the user changed
+                        if (!profileRef.current || profileRef.current.id !== newUser.id) {
+                            setLoading(true);
+                        }
+                        await fetchProfile(newUser.id);
+                        setLoading(false);
+                    }
+                } else if (event === 'SIGNED_OUT') {
                     setProfile(null);
+                    setLoading(false);
                 }
 
-                if (event === 'SIGNED_OUT') {
-                    setUser(null);
-                    setProfile(null);
-                    setSession(null);
+                // Ensure loading is false after all events
+                if (loading && !session?.user) {
+                    setLoading(false);
                 }
-
-                setLoading(false);
             }
         );
 
         return () => {
+            isMounted = false;
             subscription.unsubscribe();
         };
     }, []);
