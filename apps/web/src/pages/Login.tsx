@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { Card, Button } from '@yedirenklicinar/ui-kit';
 import { GraduationCap, Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -31,10 +32,12 @@ export const Login: React.FC = () => {
 
         try {
             await login(email, password, rememberMe);
-
+            toast.success('Başarıyla giriş yapıldı, hoş geldiniz!');
             // Navigation will happen automatically via useEffect above
         } catch (err: any) {
-            setError(err.message || 'Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.');
+            const errorMessage = err.message || 'Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.';
+            setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }

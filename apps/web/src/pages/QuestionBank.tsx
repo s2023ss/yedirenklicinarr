@@ -1,10 +1,11 @@
 import React from 'react';
-import { Card, Button } from '@yedirenklicinar/ui-kit';
+import { Card, Button, Skeleton } from '@yedirenklicinar/ui-kit';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Filter, BookOpen, HelpCircle, Inbox, AlertTriangle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@yedirenklicinar/shared-api';
 import { Modal } from '@yedirenklicinar/ui-kit';
+import { toast } from 'sonner';
 
 export const QuestionBank: React.FC = () => {
     const navigate = useNavigate();
@@ -42,10 +43,11 @@ export const QuestionBank: React.FC = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['questions'] });
+            toast.success('Soru başarıyla silindi.');
             setDeleteId(null);
         },
         onError: (error: any) => {
-            alert('Silme işlemi başarısız: ' + error.message);
+            toast.error('Silme işlemi başarısız: ' + error.message);
         }
     });
 
@@ -100,9 +102,23 @@ export const QuestionBank: React.FC = () => {
             {/* Question List */}
             <div className="grid gap-6">
                 {isLoading ? (
-                    <div className="flex flex-col items-center justify-center py-24 space-y-4">
-                        <div className="w-12 h-12 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin"></div>
-                        <p className="text-slate-500 font-bold animate-pulse">Sorular yükleniyor...</p>
+                    <div className="space-y-6">
+                        {[1, 2, 3].map((i) => (
+                            <Card key={i} className="p-6 border-slate-100">
+                                <div className="space-y-4">
+                                    <div className="flex gap-2">
+                                        <Skeleton width={80} height={20} variant="rectangular" className="rounded-full" />
+                                        <Skeleton width={60} height={20} variant="rectangular" className="rounded-full" />
+                                    </div>
+                                    <Skeleton variant="text" />
+                                    <Skeleton variant="text" width="80%" />
+                                    <div className="flex gap-4">
+                                        <Skeleton width={120} height={32} />
+                                        <Skeleton width={180} height={32} />
+                                    </div>
+                                </div>
+                            </Card>
+                        ))}
                     </div>
                 ) : error ? (
                     <Card className="p-8 border-red-100 bg-red-50/50 text-center space-y-4">

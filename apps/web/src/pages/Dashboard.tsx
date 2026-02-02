@@ -1,13 +1,12 @@
 import React from 'react';
-import { Card } from '@yedirenklicinar/ui-kit';
+import { Card, Skeleton } from '@yedirenklicinar/ui-kit';
 import { Users, BookOpen, HelpCircle, TrendingUp } from 'lucide-react';
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@yedirenklicinar/shared-api';
 
 export const Dashboard: React.FC = () => {
     // Fetch Student Count
-    const { data: studentCount } = useQuery({
+    const { data: studentCount, isLoading: isStudentLoading } = useQuery({
         queryKey: ['count', 'students'],
         queryFn: async () => {
             const { count, error } = await supabase
@@ -20,7 +19,7 @@ export const Dashboard: React.FC = () => {
     });
 
     // Fetch Course Count
-    const { data: courseCount } = useQuery({
+    const { data: courseCount, isLoading: isCourseLoading } = useQuery({
         queryKey: ['count', 'courses'],
         queryFn: async () => {
             const { count, error } = await supabase
@@ -32,7 +31,7 @@ export const Dashboard: React.FC = () => {
     });
 
     // Fetch Question Count
-    const { data: questionCount } = useQuery({
+    const { data: questionCount, isLoading: isQuestionLoading } = useQuery({
         queryKey: ['count', 'questions'],
         queryFn: async () => {
             const { count, error } = await supabase
@@ -44,30 +43,36 @@ export const Dashboard: React.FC = () => {
     });
 
     const stats = [
-        { label: 'Toplam Öğrenci', value: String(studentCount ?? '...'), icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-        { label: 'Aktif Dersler', value: String(courseCount ?? '...'), icon: BookOpen, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-        { label: 'Soru Sayısı', value: String(questionCount ?? '...'), icon: HelpCircle, color: 'text-purple-600', bg: 'bg-purple-50' },
-        { label: 'Başarı Oranı', value: '%86', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'Toplam Öğrenci', value: studentCount, isLoading: isStudentLoading, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { label: 'Aktif Dersler', value: courseCount, isLoading: isCourseLoading, icon: BookOpen, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Soru Sayısı', value: questionCount, isLoading: isQuestionLoading, icon: HelpCircle, color: 'text-purple-600', bg: 'bg-purple-50' },
+        { label: 'Başarı Oranı', value: 86, isLoading: false, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50', prefix: '%' },
     ];
 
     return (
-        <div className="space-y-8 max-w-7xl mx-auto">
-            <div className="animate-in fade-in duration-700">
-                <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Hoş Geldiniz</h1>
-                <p className="text-slate-500 mt-2 font-medium">Yedi Renkli Çınar eğitim yönetim paneline genel bakış.</p>
+        <div className="space-y-12 max-w-7xl mx-auto">
+            <div className="animate-in slide-in-from-top-4 duration-700">
+                <h1 className="text-5xl font-black text-slate-900 tracking-tight leading-tight">Panoya Genel Bakış</h1>
+                <p className="text-slate-500 mt-3 font-bold text-lg tracking-tight">Akademi'deki son gelişmeleri ve istatistikleri takip edin.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {stats.map((stat, i) => (
-                    <div key={i} className="animate-in zoom-in-95" style={{ animationDelay: `${i * 100}ms` }}>
-                        <Card className="p-6 border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                            <div className="flex items-center gap-4">
-                                <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color} shadow-inner`}>
-                                    <stat.icon size={28} />
+                    <div key={i} className="animate-in zoom-in-95 duration-500" style={{ animationDelay: `${i * 100}ms` }}>
+                        <Card className="hover:border-primary-100 transition-all duration-300">
+                            <div className="space-y-6">
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${stat.bg} ${stat.color} shadow-sm`}>
+                                    <stat.icon size={28} strokeWidth={2.5} />
                                 </div>
-                                <div>
-                                    <p className="text-xs font-black text-slate-400 uppercase tracking-[0.15em] mb-1">{stat.label}</p>
-                                    <p className="text-3xl font-black text-slate-900 tracking-tight">{stat.value}</p>
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
+                                    {stat.isLoading ? (
+                                        <Skeleton width={80} height={40} />
+                                    ) : (
+                                        <p className="text-4xl font-black text-slate-900 tracking-tight">
+                                            {stat.prefix}{stat.value}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </Card>
@@ -75,25 +80,29 @@ export const Dashboard: React.FC = () => {
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card className="p-8 border-slate-100 min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed bg-slate-50/10 rounded-[2.5rem] relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative text-center space-y-4">
-                        <div className="w-20 h-20 bg-white shadow-xl rounded-3xl flex items-center justify-center mx-auto text-slate-300">
-                            <TrendingUp size={40} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <Card className="p-10 border-slate-100 min-h-[450px] flex flex-col items-center justify-center border-2 border-dashed bg-white rounded-[3rem] relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-primary-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="relative text-center space-y-6">
+                        <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mx-auto text-slate-200 border border-slate-100 transition-all group-hover:scale-110 group-hover:text-primary-200">
+                            <TrendingUp size={48} />
                         </div>
-                        <p className="text-slate-400 font-bold text-lg">Öğrenci Gelişim Grafiği (Yakında)</p>
-                        <p className="text-slate-300 text-sm max-w-[240px] mx-auto font-medium">Sınav sonuçlarına göre öğrenci performans analizleri burada görüntülenecek.</p>
+                        <div className="space-y-2">
+                            <p className="text-slate-900 font-black text-xl tracking-tight">Performans Analizi</p>
+                            <p className="text-slate-400 text-sm max-w-[280px] mx-auto font-bold leading-relaxed">Sınav sonuçlarına göre kişiselleştirilmiş öğrenci gelişim grafikleri yakında burada olacak.</p>
+                        </div>
                     </div>
                 </Card>
-                <Card className="p-8 border-slate-100 min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed bg-slate-50/10 rounded-[2.5rem] relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative text-center space-y-4">
-                        <div className="w-20 h-20 bg-white shadow-xl rounded-3xl flex items-center justify-center mx-auto text-slate-300">
-                            <BookOpen size={40} />
+                <Card className="p-10 border-slate-100 min-h-[450px] flex flex-col items-center justify-center border-2 border-dashed bg-white rounded-[3rem] relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-indigo-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="relative text-center space-y-6">
+                        <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mx-auto text-slate-200 border border-slate-100 transition-all group-hover:scale-110 group-hover:text-indigo-200">
+                            <BookOpen size={48} />
                         </div>
-                        <p className="text-slate-400 font-bold text-lg">Son Aktiviteler (Yakında)</p>
-                        <p className="text-slate-300 text-sm max-w-[240px] mx-auto font-medium">Öğrencilerin çözdüğü son testler ve kazanım durumları burada takip edilecek.</p>
+                        <div className="space-y-2">
+                            <p className="text-slate-900 font-black text-xl tracking-tight">Aktivite Akışı</p>
+                            <p className="text-slate-400 text-sm max-w-[280px] mx-auto font-bold leading-relaxed">Öğrencilerin çözdüğü son testler ve kazanım durumları anlık olarak burada takip edilecek.</p>
+                        </div>
                     </div>
                 </Card>
             </div>

@@ -118,12 +118,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Initialize auth state
     useEffect(() => {
         // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
             setSession(session);
             setUser(session?.user ?? null);
 
             if (session?.user) {
-                fetchProfile(session.user.id);
+                await fetchProfile(session.user.id);
             }
 
             setLoading(false);
@@ -133,6 +133,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 console.log('Auth state changed:', event);
+
+                // Set loading for significant changes if we want to ensure no flicker
+                if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                    setLoading(true);
+                }
 
                 setSession(session);
                 setUser(session?.user ?? null);

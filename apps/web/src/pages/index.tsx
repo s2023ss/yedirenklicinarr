@@ -12,3 +12,4 @@ export { QuizSolve } from './QuizSolve';
 export { Login } from './Login';
 export { QuestionBulkUpload } from './QuestionBulkUpload';
 export { Unauthorized } from './Unauthorized';
+export { Reports } from './Reports';

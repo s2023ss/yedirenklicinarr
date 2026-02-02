@@ -5,3 +5,4 @@ export * from './Modal';
 export * from './Select';
 export * from './Textarea';
 export * from './Drawer';
+export * from './Skeleton';

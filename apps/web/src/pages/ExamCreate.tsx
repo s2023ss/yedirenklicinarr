@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@yedirenklicinar/shared-api';
-import { Card, Button } from '@yedirenklicinar/ui-kit';
+import { Card, Button, Skeleton } from '@yedirenklicinar/ui-kit';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { ArrowLeft, Save, Search, BookOpen, Plus, Check, Info, Users, GraduationCap } from 'lucide-react';
 
 export const ExamCreate: React.FC = () => {
@@ -158,10 +159,11 @@ export const ExamCreate: React.FC = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['exams'] });
+            toast.success('Yeni sınav başarıyla oluşturuldu ve atandı.');
             navigate('/exams');
         },
         onError: (err: any) => {
-            alert('Hata: ' + err.message);
+            toast.error('Hata: ' + err.message);
         }
     });
 
@@ -220,7 +222,7 @@ export const ExamCreate: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Info & Assignment Section */}
+                {/* Info \u0026 Assignment Section */}
                 <div className="lg:col-span-1 space-y-8">
                     {/* Basic Info Card */}
                     <Card className="p-8 border-none shadow-xl shadow-slate-200/40 bg-white rounded-[2.5rem] space-y-6">
@@ -389,9 +391,22 @@ export const ExamCreate: React.FC = () => {
 
                     <div className="space-y-4">
                         {isLoadingQuestions ? (
-                            <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                                <div className="w-10 h-10 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin"></div>
-                                <p className="text-slate-500 font-bold animate-pulse">Soru havuzu yükleniyor...</p>
+                            <div className="space-y-4">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <Card key={i} className="p-6 border-white bg-white">
+                                        <div className="flex items-start gap-4">
+                                            <Skeleton width={40} height={40} variant="rectangular" className="rounded-xl" />
+                                            <div className="flex-1 space-y-3">
+                                                <div className="flex gap-2">
+                                                    <Skeleton width={80} height={20} />
+                                                    <Skeleton width={60} height={20} />
+                                                </div>
+                                                <Skeleton variant="text" width="90%" />
+                                                <Skeleton variant="text" width="60%" />
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
                             </div>
                         ) : questions && questions.length > 0 ? (
                             questions.map((q, i) => {

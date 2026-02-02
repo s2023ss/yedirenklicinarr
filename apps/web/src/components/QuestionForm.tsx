@@ -3,6 +3,7 @@ import { Button, Select, Textarea } from '@yedirenklicinar/ui-kit';
 import { supabase } from '@yedirenklicinar/shared-api';
 import { Plus, Trash2, CheckCircle2, Layout, FileText, CheckSquare } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 interface Option {
     option_text: string;
@@ -134,13 +135,13 @@ export const QuestionForm: React.FC<QuestionFormProps> = ({ onSuccess, onCancel,
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedOutcome || !content) {
-            alert('Lütfen tüm zorunlu alanları doldurun.');
+            toast.error('Lütfen tüm zorunlu alanları doldurun.');
             return;
         }
 
         const correctOption = options.find(o => o.is_correct);
         if (!correctOption) {
-            alert('Lütfen doğru bir seçenek belirleyin.');
+            toast.error('Lütfen doğru bir seçenek belirleyin.');
             return;
         }
 
@@ -189,10 +190,11 @@ export const QuestionForm: React.FC<QuestionFormProps> = ({ onSuccess, onCancel,
             const { error: oError } = await supabase.from('options').insert(optionsToInsert);
             if (oError) throw oError;
 
+            toast.success(initialData ? 'Soru başarıyla güncellendi.' : 'Yeni soru başarıyla eklendi.');
             onSuccess();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving question:', error);
-            alert('Soru kaydedilirken bir hata oluştu.');
+            toast.error('Soru kaydedilirken bir hata oluştu: ' + error.message);
         } finally {
             setIsSubmitting(false);
         }

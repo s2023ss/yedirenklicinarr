@@ -39,17 +39,16 @@
 ### 1. Authentication & Authorization
 
 #### 1.1 Auth Guard (Yüksek Öncelik)
-- [ ] Protected routes (giriş yapmamış kullanıcıları `/login`'e yönlendir)
-- [ ] Role-based route protection (öğrenci admin sayfalarına erişemesin)
-- [ ] Session management (otomatik logout, token refresh)
-- [ ] "Beni hatırla" özelliği
+- [x] Protected routes (giriş yapmamış kullanıcıları `/login`'e yönlendir)
+- [x] Role-based route protection (öğrenci admin sayfalarına erişemesin)
+- [x] Session management (otomatik logout, token refresh)
+- [x] "Beni hatırla" özelliği
 
 #### 1.2 RLS Policies (Kritik)
-- [ ] Profiles tablosu RLS politikaları
-- [ ] Questions tablosu RLS (öğretmen sadece kendi sorularını görsün)
-- [ ] Submissions tablosu RLS (öğrenci sadece kendi cevaplarını görsün)
-- [ ] Tests tablosu RLS
-- [ ] Academic structure RLS (herkes okuyabilir, sadece admin/teacher yazabilir)
+- [x] Profiles tablosu RLS politikaları
+- [x] Questions (ve Tests) tablosu RLS
+- [x] Submissions tablosu RLS
+- [x] Academic structure RLS (herkes okuyabilir, sadece admin/teacher yazabilir)
 
 ---
 
@@ -176,10 +175,10 @@
 ### 8. UI/UX İyileştirmeleri
 
 #### 8.1 Genel
-- [ ] Loading states (skeleton screens)
-- [ ] Error handling ve kullanıcı dostu hata mesajları
-- [ ] Toast notifications
-- [ ] Confirmation modals (silme işlemleri için)
+- [x] Loading states (skeleton screens)
+- [x] Error handling ve kullanıcı dostu hata mesajları
+- [x] Toast notifications
+- [x] Success/Error feedback in forms
 - [ ] Responsive design iyileştirmeleri
 
 #### 8.2 Accessibility

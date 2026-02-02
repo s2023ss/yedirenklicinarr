@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@yedirenklicinar/shared-api';
 import { Card, Button } from '@yedirenklicinar/ui-kit';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { Plus, ClipboardList, Clock, CheckCircle2, XCircle, Trash2, Calendar, Users, GraduationCap } from 'lucide-react';
 
 export const Exams: React.FC = () => {
@@ -42,7 +43,11 @@ export const Exams: React.FC = () => {
             if (error) throw error;
         },
         onSuccess: () => {
+            toast.success('Sınav başarıyla silindi.');
             queryClient.invalidateQueries({ queryKey: ['exams'] });
+        },
+        onError: (err: any) => {
+            toast.error('Sınav silinirken bir hata oluştu: ' + err.message);
         }
     });
 

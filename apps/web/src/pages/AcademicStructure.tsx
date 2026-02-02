@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, Input, Modal } from '@yedirenklicinar/ui-kit';
+import { Card, Button, Input, Modal, Skeleton } from '@yedirenklicinar/ui-kit';
 import { Plus, BookOpen, Edit2, LayoutList, GraduationCap, ArrowRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@yedirenklicinar/shared-api';
+import { toast } from 'sonner';
 
 export const AcademicStructure: React.FC = () => {
     const navigate = useNavigate();
@@ -37,9 +38,13 @@ export const AcademicStructure: React.FC = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['grades'] });
+            toast.success('Yeni sınıf başarıyla eklendi.');
             setIsGradeModalOpen(false);
             setNewGradeName('');
         },
+        onError: (err: any) => {
+            toast.error('Sınıf eklenirken bir hata oluştu: ' + err.message);
+        }
     });
 
     return (
@@ -70,9 +75,29 @@ export const AcademicStructure: React.FC = () => {
             {/* Content Container */}
             <div className="space-y-10">
                 {gradesLoading ? (
-                    <div className="flex flex-col items-center justify-center py-32 space-y-4">
-                        <div className="w-14 h-14 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin"></div>
-                        <p className="text-slate-500 font-bold animate-pulse text-lg">Müfredat yapılandırılıyor...</p>
+                    <div className="space-y-10">
+                        {[1, 2].map((i) => (
+                            <div key={i} className="space-y-6">
+                                <div className="flex items-center gap-4">
+                                    <Skeleton width={56} height={56} variant="rectangular" className="rounded-2xl" />
+                                    <div className="space-y-2">
+                                        <Skeleton width={150} height={24} />
+                                        <Skeleton width={100} height={16} />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {[1, 2, 3, 4].map((j) => (
+                                        <Card key={j} className="p-6">
+                                            <div className="space-y-4">
+                                                <Skeleton width={40} height={40} variant="rectangular" className="rounded-2xl" />
+                                                <Skeleton variant="text" />
+                                                <Skeleton variant="text" width="60%" />
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ) : (
                     grades?.map((grade: any) => (

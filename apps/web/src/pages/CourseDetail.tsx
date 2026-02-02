@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Button, Input, Modal } from '@yedirenklicinar/ui-kit';
+import { Card, Button, Input, Modal, Skeleton } from '@yedirenklicinar/ui-kit';
 import { ArrowLeft, Plus, Edit2, Book, Layers } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@yedirenklicinar/shared-api';
+import { toast } from 'sonner';
 
 export const CourseDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -48,15 +49,53 @@ export const CourseDetail: React.FC = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['course', id] });
+            toast.success('Yeni ünite başarıyla eklendi.');
             setIsUnitModalOpen(false);
             setNewUnitName('');
+        },
+        onError: (err: any) => {
+            toast.error('Ünite eklenirken bir hata oluştu: ' + err.message);
         }
     });
 
     if (isLoading) return (
-        <div className="flex flex-col items-center justify-center py-32 space-y-4">
-            <div className="w-14 h-14 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin"></div>
-            <p className="text-slate-500 font-bold animate-pulse">Ders detayları yükleniyor...</p>
+        <div className="space-y-8 max-w-7xl mx-auto pb-20">
+            <div className="space-y-6">
+                <Skeleton width={150} height={20} />
+                <div className="flex justify-between items-end">
+                    <div className="space-y-3">
+                        <Skeleton width={200} height={24} />
+                        <Skeleton width={300} height={48} />
+                    </div>
+                    <Skeleton width={160} height={48} variant="rectangular" className="rounded-2xl" />
+                </div>
+            </div>
+            <div className="grid gap-8">
+                {[1, 2].map((i) => (
+                    <div key={i} className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <Skeleton width={48} height={48} variant="rectangular" className="rounded-xl" />
+                            <div className="space-y-2">
+                                <Skeleton width={200} height={24} />
+                                <Skeleton width={100} height={16} />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {[1, 2, 3].map((j) => (
+                                <Card key={j} className="p-5">
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-3">
+                                            <Skeleton width={32} height={32} variant="rectangular" className="rounded-lg" />
+                                            <Skeleton width={120} height={20} />
+                                        </div>
+                                        <Skeleton width={60} height={20} />
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 

@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AdminLayout } from './components/AdminLayout';
 import { AcademicStructure, CourseDetail } from './pages';
-import { Dashboard, QuestionBank, QuestionCreate, QuestionEdit, Exams, ExamCreate, Users, StudentExams, QuizSolve, Login, QuestionBulkUpload, Unauthorized } from './pages';
+import { Dashboard, QuestionBank, QuestionCreate, QuestionEdit, Exams, ExamCreate, Users, StudentExams, QuizSolve, Login, QuestionBulkUpload, Unauthorized, Reports } from './pages';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleBasedRoute } from './components/RoleBasedRoute';
@@ -10,6 +11,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Toaster position="top-right" richColors closeButton />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
@@ -28,6 +30,7 @@ function App() {
             </ProtectedRoute>
           }>
             <Route index element={<Dashboard />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="academic" element={<AcademicStructure />} />
             <Route path="academic/course/:id" element={<CourseDetail />} />
             <Route path="questions" element={<QuestionBank />} />
