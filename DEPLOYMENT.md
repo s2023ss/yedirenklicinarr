@@ -54,6 +54,13 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 - `serve` paketi SPA routing'i otomatik olarak handle eder
 - Tüm route'lar index.html'e yönlendirilir
 
+**React Error #525 (Environment Variables Eksik)**
+- Bu hata, build sırasında environment variable'ların tanımlanmamış olduğunu gösterir
+- `nixpacks.toml` dosyasında `VITE_SUPABASE_URL` ve `VITE_SUPABASE_ANON_KEY` değişkenlerinin olduğundan emin olun
+- Dokploy'da environment variables eklediyseniz, **mutlaka redeploy** yapın (değişiklikler otomatik uygulanmaz)
+- Browser console'da hatayı görmek için: F12 → Console tab
+- Çözüm: Değişiklikleri GitHub'a push edin ve Dokploy'da "Redeploy" yapın
+
 ### Manuel Deployment (Alternatif)
 
 Eğer Dokploy kullanmıyorsanız:

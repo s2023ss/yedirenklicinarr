@@ -12,3 +12,4 @@ cmd = "npx serve -s apps/web/dist -p 3000"
 
 [variables]
 VITE_SUPABASE_URL = "https://supabase.yedirenklicinar.digitalalem.com"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3Njk4ODgxNDQsImV4cCI6MTg5MzQ1NjAwMCwicm9sZSI6ImFub24iLCJpc3MiOiJzdXBhYmFzZSJ9.RDyrrTH3Av-5AaG22l6zP02i32xLtpnqOft1NTddB4o"
