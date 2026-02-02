@@ -148,47 +148,47 @@ export const QuizSolve: React.FC = () => {
     return (
         <div className="min-h-screen bg-slate-50 font-sans selection:bg-primary-100">
             {/* Focused Header */}
-            <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 py-4">
+            <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 py-3">
                 <div className="max-w-5xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => { if (window.confirm('Sinavi terketmek istediginize emin misiniz? Ilerlemeniz kaydedilmeyecek.')) navigate('/student/exams') }}
-                            className="p-3 text-slate-400 hover:text-red-500 transition-colors"
+                            className="p-2.5 text-slate-400 hover:text-red-500 transition-colors"
                         >
-                            <ArrowLeft size={24} />
+                            <ArrowLeft size={22} />
                         </button>
-                        <div className="h-8 w-[2px] bg-slate-100 mx-2"></div>
+                        <div className="h-6 w-[2px] bg-slate-100 mx-1"></div>
                         <div>
-                            <h1 className="text-lg font-black text-slate-800 tracking-tight truncate max-w-[200px] md:max-w-md uppercase italic italic">
+                            <h1 className="text-base font-black text-slate-800 tracking-tight truncate max-w-[150px] md:max-w-md uppercase italic">
                                 {testData?.title}
                             </h1>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <div className="flex items-center gap-2 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                                 <span className="text-primary-500">Kazanım Odaklı</span> • <span>Soru {currentQuestionIndex + 1}/{questions.length}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className={`flex items-center gap-3 px-5 py-2.5 rounded-2xl font-black text-lg shadow-sm transition-all duration-300 ${timeLeft && timeLeft < 60 ? 'bg-red-50 text-red-600 border-red-100 animate-pulse' : 'bg-slate-50 text-slate-700 border-slate-100'}`}>
-                        <Clock size={20} className={timeLeft && timeLeft < 60 ? 'text-red-500' : 'text-primary-500'} />
+                    <div className={`flex items-center gap-2.5 px-4 py-2 rounded-xl font-black text-base shadow-sm transition-all duration-300 ${timeLeft && timeLeft < 60 ? 'bg-red-50 text-red-600 border-red-100 animate-pulse' : 'bg-slate-50 text-slate-700 border-slate-100'}`}>
+                        <Clock size={18} className={timeLeft && timeLeft < 60 ? 'text-red-500' : 'text-primary-500'} />
                         {timeLeft !== null && formatTime(timeLeft)}
                     </div>
                 </div>
             </div>
 
             {/* Content Area */}
-            <div className="max-w-5xl mx-auto px-6 py-12 pb-32">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+            <div className="max-w-6xl mx-auto px-6 py-8 pb-32">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     {/* Left Column: Progress Paneli */}
-                    <div className="hidden lg:block space-y-6">
+                    <div className="hidden lg:block space-y-6 lg:col-span-1">
                         <div className="space-y-4">
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1 italic">Soru Navigasyonu</h3>
-                            <div className="grid grid-cols-4 gap-2">
+                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 italic">Soru Rehberi</h3>
+                            <div className="grid grid-cols-3 gap-2">
                                 {questions.map((_: any, idx: number) => (
                                     <button
                                         key={idx}
                                         onClick={() => setCurrentQuestionIndex(idx)}
-                                        className={`h-12 rounded-xl text-sm font-black transition-all border-2 ${currentQuestionIndex === idx
-                                            ? 'bg-primary-600 border-primary-600 text-white shadow-lg shadow-primary-500/30 ring-4 ring-primary-100'
+                                        className={`h-10 rounded-lg text-xs font-black transition-all border-2 ${currentQuestionIndex === idx
+                                            ? 'bg-primary-600 border-primary-600 text-white shadow-lg shadow-primary-500/30'
                                             : selectedOptions[questions[idx].id]
                                                 ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
                                                 : 'bg-white border-slate-100 text-slate-400 hover:border-slate-300'
@@ -199,38 +199,38 @@ export const QuizSolve: React.FC = () => {
                                 ))}
                             </div>
                         </div>
-                        <div className="p-6 bg-amber-50 rounded-[2rem] border-2 border-amber-100 space-y-3">
+                        <div className="p-4 bg-amber-50 rounded-[1.5rem] border border-amber-100 space-y-2">
                             <div className="flex items-center gap-2 text-amber-700">
-                                <AlertTriangle size={18} />
-                                <span className="text-xs font-black uppercase tracking-widest">Önemli Hatırlatma</span>
+                                <AlertTriangle size={14} />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Hatırlatma</span>
                             </div>
-                            <p className="text-[11px] font-bold text-amber-800 leading-relaxed">
-                                Sınav süresi bittiğinde işaretlediğin tüm cevaplar otomatik olarak kaydedilecektir. Kalan süreni üst kısımdan takip edebilirsin.
+                            <p className="text-[10px] font-bold text-amber-800 leading-tight">
+                                Süre sonunda cevaplar otomatik kaydedilir.
                             </p>
                         </div>
                     </div>
 
                     {/* Right Column: Question & Options */}
-                    <div className="lg:col-span-3 space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+                    <div className="lg:col-span-4 space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
                         {currentQuestion && (
                             <>
-                                <div className="space-y-8">
-                                    <div className="space-y-4">
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-500 px-3 py-1 bg-primary-100/50 rounded-lg">Soru {currentQuestionIndex + 1}</span>
+                                <div className="space-y-6">
+                                    <div className="space-y-3">
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-primary-500 px-2 py-0.5 bg-primary-100/50 rounded-md">Soru {currentQuestionIndex + 1}</span>
                                         <div className="prose prose-slate max-w-none">
-                                            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 leading-[1.45] tracking-tight">
+                                            <h2 className="text-xl md:text-2xl font-bold text-slate-800 leading-snug tracking-tight">
                                                 {currentQuestion.content}
                                             </h2>
                                         </div>
                                     </div>
 
                                     {currentQuestion.image_url && (
-                                        <div className="rounded-[2.5rem] overflow-hidden border-4 border-slate-100 shadow-xl max-w-2xl">
-                                            <img src={currentQuestion.image_url} alt="Soru görseli" className="w-full" />
+                                        <div className="rounded-[1.5rem] overflow-hidden border-2 border-slate-100 shadow-md max-w-xl">
+                                            <img src={currentQuestion.image_url} alt="Soru görseli" className="w-full h-auto" />
                                         </div>
                                     )}
 
-                                    <div className="grid grid-cols-1 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         {currentQuestion.options.map((option: any, oIdx: number) => {
                                             const label = ['A', 'B', 'C', 'D', 'E'][oIdx];
                                             const isSelected = selectedOptions[currentQuestion.id] === option.id;
@@ -238,16 +238,16 @@ export const QuizSolve: React.FC = () => {
                                                 <button
                                                     key={option.id}
                                                     onClick={() => setSelectedOptions(prev => ({ ...prev, [currentQuestion.id]: option.id }))}
-                                                    className={`flex items-center gap-6 p-6 rounded-[2rem] border-2 text-left transition-all duration-300 group ${isSelected
-                                                        ? 'bg-primary-50 border-primary-500 shadow-xl shadow-primary-500/5 ring-4 ring-primary-50'
-                                                        : 'bg-white border-white hover:border-slate-200 hover:shadow-lg'
+                                                    className={`flex items-center gap-4 p-4 rounded-[1.5rem] border-2 text-left transition-all duration-300 group ${isSelected
+                                                        ? 'bg-primary-50 border-primary-500 shadow-lg shadow-primary-500/5'
+                                                        : 'bg-white border-slate-50 hover:border-slate-200 hover:shadow-md'
                                                         }`}
                                                 >
-                                                    <div className={`w-12 h-12 flex-shrink-0 rounded-[1.25rem] flex items-center justify-center text-lg font-black transition-all ${isSelected ? 'bg-primary-600 text-white shadow-lg' : 'bg-slate-50 text-slate-400 group-hover:bg-primary-100 group-hover:text-primary-600'
+                                                    <div className={`w-10 h-10 flex-shrink-0 rounded-xl flex items-center justify-center text-base font-black transition-all ${isSelected ? 'bg-primary-600 text-white shadow-md' : 'bg-slate-50 text-slate-400 group-hover:bg-primary-100 group-hover:text-primary-600'
                                                         }`}>
                                                         {label}
                                                     </div>
-                                                    <span className={`text-lg font-bold leading-relaxed ${isSelected ? 'text-primary-900' : 'text-slate-700'}`}>
+                                                    <span className={`text-base font-bold leading-tight ${isSelected ? 'text-primary-900' : 'text-slate-700'}`}>
                                                         {option.option_text}
                                                     </span>
                                                 </button>
