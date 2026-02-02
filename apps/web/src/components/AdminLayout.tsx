@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// v1.0.1 - Fixed Outlet import and usage
 import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
