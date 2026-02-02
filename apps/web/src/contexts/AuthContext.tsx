@@ -34,6 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
     const profileRef = React.useRef<Profile | null>(null);
+    const fetchLock = React.useRef<string | null>(null);
 
     // Sync ref with state
     useEffect(() => {
@@ -42,17 +43,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Fetch user profile from database
     const fetchProfile = async (userId: string, isInitial: boolean = false) => {
+        // Prevent parallel fetches for the same user
+        if (fetchLock.current === userId) {
+            console.log('Fetch already in progress for:', userId);
+            return;
+        }
+
         // If we already have this user's profile, don't re-fetch unless it's initial load
-        if (profile && profile.id === userId && !isInitial) {
+        if (profileRef.current && profileRef.current.id === userId && !isInitial) {
             console.log('Profile already loaded for user:', userId);
             return;
         }
 
+        fetchLock.current = userId;
         try {
             console.log('=== FETCH PROFILE START ===');
-            // Use a relative timeout only if we want to catch persistent hangs
-            // But let's make it longer or remove it if it causes issues on slow networks
-            const timeoutMs = 15000;
+            // Increase timeout or remove it if problematic
+            const timeoutMs = 20000;
             const timeoutPromise = new Promise((_, reject) => {
                 setTimeout(() => reject(new Error(`Query timeout after ${timeoutMs / 1000} seconds`)), timeoutMs);
             });
@@ -76,34 +83,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 throw error;
             }
 
-            if (data) {
+            if (data && isMountedRef.current) {
                 setProfile(data);
                 console.log('Profile loaded:', data.full_name);
             }
         } catch (error: any) {
             console.error('Error fetching profile:', error?.message);
             // Don't clear profile if it's just a timeout and we already had it
-            if (error?.message?.includes('timeout') && profile && profile.id === userId) {
+            if (error?.message?.includes('timeout') && profileRef.current && profileRef.current.id === userId) {
                 console.log('Using cached profile due to timeout');
             } else {
                 setProfile(null);
             }
+        } finally {
+            fetchLock.current = null;
         }
     };
 
+    const isMountedRef = React.useRef(true);
+
     // Initialize auth state
     useEffect(() => {
-        let isMounted = true;
+        isMountedRef.current = true;
 
         // Get initial session
         supabase.auth.getSession().then(async ({ data: { session } }) => {
-            if (!isMounted) return;
+            if (!isMountedRef.current) return;
 
             setSession(session);
-            setUser(session?.user ?? null);
+            const initialUser = session?.user ?? null;
+            setUser(initialUser);
 
-            if (session?.user) {
-                await fetchProfile(session.user.id, true);
+            if (initialUser) {
+                await fetchProfile(initialUser.id, true);
             }
 
             setLoading(false);
@@ -112,7 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
-                if (!isMounted) return;
+                if (!isMountedRef.current) return;
 
                 console.log('Auth state changed:', event);
 
@@ -121,6 +133,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                 setSession(session);
                 setUser(newUser);
+
+                // Skip profile fetch for INITIAL_SESSION if we already handled it in getSession
+                // This prevents the double-fetch timeout issue
+                if (event === 'INITIAL_SESSION' && profileRef.current && newUser && profileRef.current.id === newUser.id) {
+                    console.log('Skipping INITIAL_SESSION profile fetch as it is already loaded');
+                    setLoading(false);
+                    return;
+                }
 
                 // Handle events
                 if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
@@ -145,7 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
 
         return () => {
-            isMounted = false;
+            isMountedRef.current = false;
             subscription.unsubscribe();
         };
     }, []);
