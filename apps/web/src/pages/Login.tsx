@@ -1,43 +1,42 @@
-import React, { useState } from 'react';
-import { supabase } from '@yedirenklicinar/shared-api';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button } from '@yedirenklicinar/ui-kit';
 import { GraduationCap, Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const { login, user, profile, loading: authLoading } = useAuth();
+    const [loading, setLoading] = useState(false);
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (!authLoading && user && profile) {
+            if (profile.role === 'student') {
+                navigate('/student/exams', { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
+        }
+    }, [user, profile, authLoading, navigate]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        const { data, error: loginError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+        try {
+            await login(email, password, rememberMe);
 
-        if (loginError) {
-            setError('Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.');
+            // Navigation will happen automatically via useEffect above
+        } catch (err: any) {
+            setError(err.message || 'Giriş başarısız. Lütfen e-posta ve şifrenizi kontrol edin.');
+        } finally {
             setLoading(false);
-            return;
-        }
-
-        // Get profile to determine role and redirect
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
-
-        if (profile?.role === 'student') {
-            navigate('/student/exams');
-        } else {
-            navigate('/');
         }
     };
 
@@ -90,6 +89,19 @@ export const Login: React.FC = () => {
                                 placeholder="••••••••"
                             />
                         </div>
+                    </div>
+
+                    <div className="flex items-center">
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="w-4 h-4 text-primary-600 bg-slate-50 border-slate-300 rounded focus:ring-primary-500 focus:ring-2"
+                        />
+                        <label htmlFor="rememberMe" className="ml-2 text-sm font-medium text-slate-600">
+                            Beni Hatırla
+                        </label>
                     </div>
 
                     <Button

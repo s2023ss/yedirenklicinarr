@@ -1,6 +1,6 @@
 ---
 name: quiz-db-schema
-description: Quiz Uygulaması için sınavlar, sorular, seçenekler ve gönderimler tablolarını içeren veritabanı yapısı dokümantasyonu.
+description: Quiz Uygulaması için kullanıcı profilleri, sınavlar, sorular, seçenekler ve gönderimler tablolarını içeren veritabanı yapısı dokümantasyonu.
 ---
 
 # Quiz Veritabanı Şeması Yeteneği (Skill)
@@ -8,6 +8,17 @@ description: Quiz Uygulaması için sınavlar, sorular, seçenekler ve gönderim
 Bu yetenek, Supabase üzerindeki Quiz Uygulaması için tam ve detaylı veritabanı yapısını içerir.
 
 ## Tablolar
+
+### 0. `profiles` (Kullanıcı Profilleri)
+Kullanıcı kimlik doğrulama ve yetkilendirme bilgilerini depolar.
+- `id` (UUID PRIMARY KEY, REFERENCES auth.users(id)): Supabase Auth kullanıcı kimliği.
+- `email` (TEXT, NOT NULL, UNIQUE): Kullanıcı e-posta adresi.
+- `full_name` (TEXT): Kullanıcının tam adı.
+- `role` (TEXT, NOT NULL, DEFAULT 'student'): Kullanıcı rolü ('admin', 'teacher', 'student').
+- `permissions` (JSONB, DEFAULT '{}'): Ek izinler JSON formatında.
+- `created_at` (TIMESTAMP): Oluşturulma tarihi.
+- `updated_at` (TIMESTAMP): Son güncellenme tarihi.
+
 
 ### 1. `quizzes` (Sınavlar)
 Her sınav için meta verileri depolar.

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@yedirenklicinar/shared-api';
+import { useAuth } from '../contexts/AuthContext';
 import {
     Users,
     BookOpen,
@@ -47,25 +46,15 @@ interface AdminLayoutProps {
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const navigate = useNavigate();
-
-    // Fetch Current User Profile
-    const { data: userData } = useQuery({
-        queryKey: ['current-user'],
-        queryFn: async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return null;
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-            return { user, profile };
-        }
-    });
+    const { profile, logout } = useAuth();
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
-        navigate('/login');
+        try {
+            await logout();
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
     };
 
     return (
@@ -90,7 +79,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     {/* Navigation */}
                     <nav className="flex-1 px-6 space-y-1.5 overflow-y-auto">
                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-4">Ana Menü</div>
-                        {userData?.profile?.role !== 'student' && (
+                        {profile?.role !== 'student' && (
                             <>
                                 <SidebarLink icon={LayoutDashboard} label="Dashboard" to="/" />
                                 <SidebarLink icon={BookOpen} label="Akademik Yapı" to="/academic" />
@@ -99,7 +88,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                 <SidebarLink icon={ClipboardList} label="Sınavlar" to="/exams" />
                             </>
                         )}
-                        {userData?.profile?.role === 'student' && (
+                        {profile?.role === 'student' && (
                             <>
                                 <SidebarLink icon={LayoutDashboard} label="Genel Bakış" to="/" />
                                 <SidebarLink icon={ClipboardList} label="Sınavlarım" to="/student/exams" />
@@ -108,7 +97,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                         )}
 
                         <div className="pt-6 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4">Yönetim</div>
-                        {userData?.profile?.role === 'admin' && (
+                        {profile?.role === 'admin' && (
                             <SidebarLink icon={Users} label="Kullanıcılar" to="/users" />
                         )}
                         <SidebarLink icon={Trophy} label="Rozetler" to="/achievements" />
@@ -157,9 +146,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
                         <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold text-slate-900">{userData?.profile?.full_name || 'Yükleniyor...'}</p>
+                                <p className="text-sm font-bold text-slate-900">{profile?.full_name || 'Yükleniyor...'}</p>
                                 <p className="text-[10px] font-bold text-primary-600 uppercase tracking-wider">
-                                    {userData?.profile?.role === 'admin' ? 'Admin' : (userData?.profile?.role === 'teacher' ? 'Eğitmen' : 'Öğrenci')}
+                                    {profile?.role === 'admin' ? 'Admin' : (profile?.role === 'teacher' ? 'Eğitmen' : 'Öğrenci')}
                                 </p>
                             </div>
                             <div className="w-11 h-11 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center text-slate-600 border border-slate-200 shadow-sm ring-2 ring-white">

@@ -26,7 +26,7 @@ pip install supabase
 ```python
 from supabase import create_client, Client
 
-url: str = "http://supabasesecond-supabase-121a0e-94-154-32-150.traefik.me"
+url: str = "https://supabase.yedirenklicinar.digitalalem.com"
 key: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3Njk4ODgxNDQsImV4cCI6MTg5MzQ1NjAwMCwicm9sZSI6ImFub24iLCJpc3MiOiJzdXBhYmFzZSJ9.RDyrrTH3Av-5AaG22l6zP02i32xLtpnqOft1NTddB4o"
 supabase: Client = create_client(url, key)
 ```
